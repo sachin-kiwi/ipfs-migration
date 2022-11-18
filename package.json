@@ -1,0 +1,22 @@
+{
+  "name": "ipfs-migration",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "script0":"node src/index.js -0",
+    "script1":"node src/index.js -1",
+    "script2":"node src/index.js -2",
+    "script3":"node src/index.js -3"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "ipfs-http-client": "^50.1.2",
+    "mongodb": "^4.11.0",
+    "pino": "^8.7.0",
+    "web3": "^1.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
