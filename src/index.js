@@ -1,5 +1,5 @@
-const { bootupServices, validateOption } = require("./utils/common");
-const {script0,script1,script2,script3} = require('./services/scripts')
+const { bootupServices } = require("./utils/common");
+const {script0,script1,script2Part1,script2Part2,script3} = require('./services/scripts')
 const { logs } = require("./logger");
 
 const migrationScript = async() => {
@@ -21,7 +21,7 @@ const migrationScript = async() => {
 
 const executeScript = async() =>{
     const flag = process.argv[2]
-    const options = ['-0','-1','-2','-3']
+    const options = ['-0','-1','-2.1','-2.2','-3']
     if (!options.includes(flag)){
         throw new Error('Flag is not present to run script')
     }
@@ -31,10 +31,14 @@ const executeScript = async() =>{
     else if (flag==='-1'){
         const resp = await script1()
         console.log(resp)
-    }else if (flag==='-2'){
-        const resp = await script2()
+    }else if (flag==='-2.1'){
+        const resp = await script2Part1()
         console.log(resp)
-    }else{
+    }else if (flag==='-2.2'){
+        const resp = await script2Part2()
+        console.log(resp)
+    }
+    else{
         await script3()
     }
 }
@@ -43,6 +47,6 @@ migrationScript().then(resp =>{
      console.log('Script Completed')
      process.exit(0)
 }).catch(err=>{
-    console.log(err)
+    console.log(err.stack)
     process.exit(1)
 })
