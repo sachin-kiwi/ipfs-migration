@@ -14,16 +14,14 @@ const pinningProduct  = async (product) => {
      const {infura} = getIpfsClients()
      const imageGalleryData = []
      let {image,imageGallery,thumbnail} = product
-     const imageCid = await getMediaIpfsUrlViaMediaUrl(image.url,infura)
-     image.cid = imageCid
-     const thumbnailCid = await getMediaIpfsUrlViaMediaUrl(thumbnail.url,infura)
-     thumbnail.cid = thumbnailCid
+     const imageCid = await getMediaIpfsUrlViaMediaUrl(image,infura)
+     const thumbnailCid = await getMediaIpfsUrlViaMediaUrl(thumbnail,infura)
      for (let index = 0; index < imageGallery.length; index++) {
       const element = imageGallery[index];
-      const cid = await getMediaIpfsUrlViaMediaUrl(element.url,infura)
-      imageGalleryData.push({url:element.url, cid})
+      const cid = await getMediaIpfsUrlViaMediaUrl(element,infura)
+      imageGalleryData.push(cid)
      }
-     return {image, thumbnail,imageGallery:imageGalleryData}
+     return {image:imageCid, thumbnail:thumbnailCid,imageGallery:imageGalleryData}
    } catch (error) {
       throw error
    }

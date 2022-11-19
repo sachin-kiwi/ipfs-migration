@@ -66,7 +66,7 @@ const fetchTokenURI  = async (revenue) => {
         const [token,product] = itemDetails
         const tokenData = {
             productId:token.productId,
-            rank:token.rank,
+            rank:parseInt(token.rank),
             couponCode:token.couponCode,
             isUnlocked:token.isUnlocked
         }

@@ -3,7 +3,7 @@ const { logs } = require("../logger");
 
 const readUniqueProductWithCompletedPurchase = async(db)=>{
     try {
-       return await db.collection('revenues').distinct('productId',{isBlockChainUpdated:true})
+       return await db.collection('revenues').distinct('productId',{isBlockChainUpdated:true,blockchainName:'palm'})
     } catch (error) {
         logs('error','readUniqueProductWithCompletedPurchase',`${error.stack}`)
         throw error
@@ -65,6 +65,13 @@ const fetchDealDetails = async(db)=>{
         throw error
     }
 }
+const fetchBrandDetails = async(db)=>{
+    try {
+        return await db.collection('users').find({}).toArray()
+    } catch (error) {
+        throw error
+    }
+}
 module.exports={
     listCollections,
     readUniqueProductWithCompletedPurchase,
@@ -72,5 +79,6 @@ module.exports={
     fetchProductDetails,
     fetchDealDetails,
     fetchPurchasefilterByProductId,
-    createCollectionIfNotExists
+    createCollectionIfNotExists,
+    fetchBrandDetails
 }

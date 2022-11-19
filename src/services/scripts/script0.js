@@ -1,6 +1,6 @@
 const { getMongoDbParameter } = require("../../database");
 const { logs } = require("../../logger");
-const { fetchProductDetails } = require("../../utils/mongoUtils");
+const { fetchProductDetails, fetchBrandDetails } = require("../../utils/mongoUtils");
 
 /**
  * @author Sachin Bisht
@@ -19,6 +19,7 @@ const script0 = async() => {
         })
         let pinMigrations = await db.collection('pinmigrations').find({isProduct:true}).toArray()
         pinMigrations = pinMigrations.map(doc => doc.productId.toString())
+        let userDetails = await fetchBrandDetails(db)
         const products = productList.filter(product => {
             return !(pinMigrations.includes(product._id.toString()));
         })
@@ -28,17 +29,25 @@ const script0 = async() => {
             //As per Latest image Gallery fix, imageGallery is changed from array of strings to array of objects
             const isV2 = typeof product.imageGallery[0] === 'object'
             product.imageGallery = product.imageGallery.map((image) => {
-                return {url:isV2 ? image.image: image, cid:''}
+                return isV2 ? image.image: image
             });
-            dataCreation.push(db.collection('pinmigrations').insertOne({
+            const user = userDetails.find(user => user._id.toString()=== product.userId.toString())
+            // In Case user details find then insert data otherwise skip
+            if (typeof user !== 'undefined'){
+                dataCreation.push(db.collection('pinmigrations').insertOne({
                 productId:product._id,
                 type:'metadata',
                 isProduct:true,
                 isPinned:false,
                 error:'',
+                data:product.data,
                 isImageLarge:product.isImageLarge,
-                ...{image:{url:product.image,cid:''},thumbnail:{url:product.thumbnail,cid:''},imageGallery:product.imageGallery}
+                companyName:user.companyName,
+                ...{image:product.image,thumbnail:product.thumbnail,imageGallery:product.imageGallery}
             }))
+            }else{
+                logs('error','script0',`unable to find user details for product: ${product._id}`)
+            }
         });
         await Promise.all(dataCreation);
         logs('info','script0','Script0 is completed')

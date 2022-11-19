@@ -21,8 +21,8 @@ const script1 = async()=>{
         let isCompleted = true
         for (let product of pinMigrations){
             try {
-                const data = await pinningProduct(product)
-                await db.collection('pinmigrations').updateOne({_id:product._id},{$set:{...data,isPinned:true,error:''}})
+                const ipfs = await pinningProduct(product)
+                await db.collection('pinmigrations').updateOne({_id:product._id},{$set:{ipfs,isPinned:true,error:''}})
                 logs('info','script1',`Successfully pinned productID: ${product.productId}`)
             } catch (error) {
                 logs('error','script1',`Failed in  pinning productID: ${product.productId}`)
