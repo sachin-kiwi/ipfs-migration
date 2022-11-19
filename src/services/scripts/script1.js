@@ -2,6 +2,15 @@ const { getMongoDbParameter } = require("../../database");
 const { logs } = require("../../logger");
 const { pinningProduct } = require("../pinning");
 
+/**
+ * @author Sachin Bisht
+ * @dev
+ * This Script is executed to uploads all metadata i.e image,thumbnail,imageGallery
+ * concerning product to ipfs node.It also update cids for content into pinMigration collection
+ * and set isPinned:true if all completed else update error into pinMigration 
+ * @returns {errorList,isCompleted} errorList contains error occured in product uploads to ipfs
+ * isCompleted returns true in case no error occured else false
+ */
 const script1 = async()=>{
     try {
         logs('info','script1','Script1 is starting')

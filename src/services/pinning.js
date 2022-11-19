@@ -2,6 +2,13 @@ const { getMongoDbParameter } = require("../database");
 const { getMediaIpfsUrlViaMediaUrl, getIpfsClients, getIPFSURL, getDataFromIPFS } = require("../ipfs/upload");
 const { createSmartContractInstance } = require("../utils/contract");
 
+/**
+ * @author Sachin Bisht
+ * @dev Uploads image,thumbnail and imageGallery data into ipfs 
+ * and returns same data along with their ipfs hash
+ * @param {Object} product
+ * @throws {Error} In Case error occured during data upload to ipfs
+ */
 const pinningProduct  = async (product) => {
    try {
      const {infura} = getIpfsClients()
@@ -18,31 +25,31 @@ const pinningProduct  = async (product) => {
      }
      return {image, thumbnail,imageGallery:imageGalleryData}
    } catch (error) {
-    throw error
+      throw error
    }
 }
 
 const pinningRevenue  = async (revenue,product,cids) => {
    try {
-   const {infura,self} = getIpfsClients()
-   const {db} = getMongoDbParameter()
-   const data = product.data
-   delete product.data
-   product.image=data.image
-   product.thumbnail=data.thumbnail
-   product.imageGallery=data.imageGallery
-   console.log(product)
-   const {contract:geerNFT } = await createSmartContractInstance({db,contractAddressInfoId: revenue.contractAddressInfoId.toString()})
-   const tokenURI = await geerNFT.methods.tokenURI(revenue.tokenID).call();
-   console.log(tokenURI)
-   const tokenData = await getDataFromIPFS(tokenURI,self)
-   console.log(tokenData)
-   const tokenDataFlattened = flattenedObject(tokenData)
-   console.log(tokenDataFlattened)
-   const cid = await getIPFSURL(data,infura,true)
-   return {tokenData:data,cid}
+      const {infura,self} = getIpfsClients()
+      const {db} = getMongoDbParameter()
+      const data = product.data
+      delete product.data
+      product.image=data.image
+      product.thumbnail=data.thumbnail
+      product.imageGallery=data.imageGallery
+      console.log(product)
+      const {contract:geerNFT } = await createSmartContractInstance({db,contractAddressInfoId: revenue.contractAddressInfoId.toString()})
+      const tokenURI = await geerNFT.methods.tokenURI(revenue.tokenID).call();
+      console.log(tokenURI)
+      const tokenData = await getDataFromIPFS(tokenURI,self)
+      console.log(tokenData)
+      const tokenDataFlattened = flattenedObject(tokenData)
+      console.log(tokenDataFlattened)
+      const cid = await getIPFSURL(data,infura,true)
+      return {tokenData:data,cid}
    } catch (error) {
-    throw error
+      throw error
    }
 }
 
