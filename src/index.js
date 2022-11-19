@@ -19,6 +19,11 @@ const migrationScript = async() => {
     }
 }
 
+/**
+ * Executes scripts based on  arguments passed
+ * @throws {Error} Flag is not present to run script if valid flags not provided
+ * @support Flags supported are ['-0','-1','-2.1','-2.2','-3']
+ */
 const executeScript = async() =>{
     const flag = process.argv[2]
     const options = ['-0','-1','-2.1','-2.2','-3']
