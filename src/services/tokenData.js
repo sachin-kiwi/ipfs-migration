@@ -13,6 +13,7 @@ const pinTokenData  = async (revenue,product) => {
       // It will support only palm and etherum
       const tokenDataForURI = await prepareTokenData(revenue,product)
       const tokenURI = await getIPFSURL(tokenDataForURI,infura)
+      // console.log(tokenDataForURI,tokenURI)
       if (revenue.tokenURI !== tokenURI){
         throw new Error('Prepared TokenURI doesnot match with nft tokenURI')
       }
@@ -33,7 +34,7 @@ const prepareTokenData = async(revenue,productDetails)=>{
   const { name, description}= revenue.product
   const ipfs = productDetails.ipfs
   const images = {
-      isHeavyImage: productDetails.isImageLarge,
+      isImageLarge: productDetails.isImageLarge,
       thumbnail: productDetails.thumbnail,
       image: productDetails.image,
     };
@@ -48,7 +49,7 @@ const prepareTokenData = async(revenue,productDetails)=>{
     for heavy images - tokenURI attributes store image data and tokenURI.animate_url or image store thumbnail
     while in non-heavy images -tokenURI attributes does not store image data and tokenURI.animate_url or image store thumbnail which will be same as image
     */
-  if (images.isHeavyImage) {
+  if (images.isImageLarge) {
     uploadedImages.image = ipfs.image;
     uploadedImages.thumbnail = images.thumbnail ? ipfs.thumbnail : ipfs.image
   } else {
@@ -66,7 +67,7 @@ const prepareTokenData = async(revenue,productDetails)=>{
     attributes: await getExternalData(
       productDetails.data,
       productDetails.companyName,
-      productDetails.imageGallery,
+      productDetails.ipfs.imageGallery,
       productDetails.isImageLarge,
       uploadedImages.image,
       productDetails
@@ -90,15 +91,14 @@ const getExternalData = async (data, brandCompanyName, imageGallery,isHeavyImage
     { trait_type: 'Brand', value: brandCompanyName }
   ]
   if (isHeavyImage){
-    if (productDetails.image.url.includes("image")){
+    if (productDetails.image.includes("image")){
       jsonData.push({ trait_type: "Original_Image", value: originalImage });
     }
   }
   if (imageGallery.length > 0) {
     let index = 0
     for (const image of imageGallery) {
-      const ipfsURIOfImage = image.cid
-      jsonData.push({ trait_type: `Asset_${index}`, value: ipfsURIOfImage })
+      jsonData.push({ trait_type: `Asset_${index}`, value: image })
       index++
     }
   }

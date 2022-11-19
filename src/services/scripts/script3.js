@@ -15,7 +15,7 @@ const script3 = async()=>{
         logs('info','script3','script3 is starting')
         const {db} = getMongoDbParameter()
         let pinRevenues = await db.collection('pinmigrations').find({isProduct:false,isPinned:false}).toArray()
-        let pinnedProducts = await db.collection('pinmigrations').find({isProduct:true}).toArray()
+        let pinnedProducts = await db.collection('pinmigrations').find({isProduct:true,isPinned:true}).toArray()
         logs('info','script3',`No. of request pending ${pinRevenues.length}`)
         const errorList = []
         let isCompleted = true
