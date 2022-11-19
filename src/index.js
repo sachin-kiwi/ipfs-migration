@@ -38,10 +38,10 @@ const executeScript = async() =>{
         console.log(resp)
     }else if (flag==='-2'){
         const resp = await script2()
-        console.log(resp)
+        console.log(resp.errorList,resp.isCompleted)
     }else if (flag==='-3'){
         const resp = await script3()
-        console.log(resp)
+        console.log(resp.errorList,resp.isCompleted)
     }
     else{
         await script4()

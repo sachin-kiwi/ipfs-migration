@@ -22,29 +22,37 @@ const script2 = async()=>{
         const revenues = data.filter(revenue=>!(pinRevenues.includes(revenue._id.toString())))
         logs('info','script2',`No. of request pending ${revenues.length}`)
         const errorList = []
-        let isCompleted = true
-        for (let revenue of revenues){
-            try {
-                const data = await fetchTokenURI(revenue)
-                await db.collection('pinmigrations').insertOne({
-                    revenueId:revenue._id,
-                    type:'tokenData',
-                    isProduct:false,
-                    isPinned:false,
-                    dealId: revenue.dealId,
-                    productId:revenue.productId,
-                    error:'',
-                    ...data
-                })
-                logs('info','script2',`Successfully Fetched tokenData for revenuID: ${revenue._id}`)
-            } catch (error) {
-                logs('info','script2',`Failed to Fetch tokenData for revenuID: ${revenue._id}`)
-                errorList.push({id:revenue._id,error:error.stack})
-                isCompleted = false
+        const promises = []
+        if (revenues.length > 20 ){
+            let start = 0
+            let end = 20
+            const batches = Math.ceil(revenues.length/20)
+            logs("info", "script2", `no. of batches is ${batches}`);
+            for (let i = 0; i < batches; i++) {
+                const promiseArray = []
+                const newBatch = revenues.slice(start,end)
+                logs("info", "[batches]", `Batch No. ${i} with count ${newBatch.length}`);
+                for(const revenue of newBatch){
+                    promiseArray.push(fetchTokenURIParallel(db,revenue))
+                }
+                const result = await Promise.allSettled(promiseArray);
+                logs("info","script2",`batch promise settled batch no. ${i}`);
+                const rejected = result.filter(p=>p.status==='rejected')
+                errorList.push(...rejected)
+                start+=20
+                end+=20
             }
+        }else{
+            for(const revenue of revenues){
+                promises.push(fetchTokenURIParallel(db,revenue))
+            }
+            const result = await Promise.allSettled(promises);
+            logs("info","script2",'all promise settled');
+            const rejected = result.filter(p=>p.status==='rejected')
+            errorList.push(...rejected)
         }
         logs('info','script2','script2 is completed')
-        return {errorList,isCompleted}
+        return {errorList,isCompleted:errorList.length?true:false}
     } catch (error) {
         logs('error','script2',`Failed to completed Scrip1 ${error.stack}`)
         throw error
@@ -85,4 +93,28 @@ const fetchTokenURI  = async (revenue) => {
         throw error
     }
 }
+
+const fetchTokenURIParallel = async(db,revenue)=>{
+    return new Promise(async(resolve,reject)=>{
+        try {
+        const data = await fetchTokenURI(revenue)
+        await db.collection('pinmigrations').insertOne({
+            revenueId:revenue._id,
+            type:'tokenData',
+            isProduct:false,
+            isPinned:false,
+            dealId: revenue.dealId,
+            productId:revenue.productId,
+            error:'',
+            ...data
+        })
+        resolve(`Succesfully fetch and added revenueID: ${revenue._id}`)
+        logs('info','script2',`Successfully Fetched tokenData for revenuID: ${revenue._id}`)
+        } catch (error) {
+            logs('info','script2',`Failed to Fetch tokenData for revenuID: ${revenue._id} ${error.stack}`)
+            reject([revenue._id,error])
+        }
+    })
+}
+
 module.exports=script2
