@@ -4,15 +4,15 @@ const { logs } = require("./logger");
 
 const migrationScript = async() => {
     try {
-        await bootupServices().then(async()=>{
-            await executeScript().catch(err=>{
-                logs('error','executeScript','Failure occured in executeScript')
-                throw err
-            })
+        await bootupServices().then(()=>{
         }).catch(err=>{
             logs('error','bootupServices','Failure occured in bootupServices')
             throw err
         })
+        await executeScript().catch(err=>{
+                logs('error','executeScript','Failure occured in executeScript')
+                throw err
+            })
     } catch (error) {
         logs('error','main',`${error.stack}`)
         throw error

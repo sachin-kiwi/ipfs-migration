@@ -29,7 +29,7 @@ const script0 = async() => {
                 isPinned:false,
                 error:'',
                 isImageLarge:product.isImageLarge,
-                data:{image:{url:product.image,cid:''},thumbnail:{url:product.thumbnail,cid:''},imageGallery:product.imageGallery}
+                ...{image:{url:product.image,cid:''},thumbnail:{url:product.thumbnail,cid:''},imageGallery:product.imageGallery}
             }))
         });
         await Promise.all(dataCreation);

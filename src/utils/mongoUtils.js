@@ -47,10 +47,30 @@ const createCollectionIfNotExists = async(collectionName='pinmigrations')=>{
     })
 }
 
+const readUniqueDealWithCompletedPurchase = async(db)=>{
+    try {
+       return await db.collection('revenues').distinct('dealId',{isBlockChainUpdated:true})
+    } catch (error) {
+        logs('error','readUniqueProductWithCompletedPurchase',`${error.stack}`)
+        throw error
+    }
+}
+
+const fetchDealDetails = async(db)=>{
+    try {
+        const dealIds = await readUniqueDealWithCompletedPurchase(db)
+        const dealDetails = await db.collection('deals').find({_id: {$in: dealIds}}).toArray()
+        return {dealIds,dealDetails}
+    } catch (error) {
+        throw error
+    }
+}
 module.exports={
     listCollections,
     readUniqueProductWithCompletedPurchase,
+    readUniqueDealWithCompletedPurchase,
     fetchProductDetails,
+    fetchDealDetails,
     fetchPurchasefilterByProductId,
     createCollectionIfNotExists
 }
