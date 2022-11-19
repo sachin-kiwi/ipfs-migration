@@ -1,47 +1,49 @@
 const { getMongoDbParameter } = require("../../database");
 const { logs } = require("../../logger");
-const { fetchDealDetails } = require("../../utils/mongoUtils");
-const { pinningRevenue } = require("../pinning");
+const { createSmartContractInstance } = require("../../utils/contract");
 
+/**
+ * @author Sachin Bisht
+ * @dev
+ * This Script is executed to fetch all tokenData i.e product,metadata,reward data and token details
+ * concerning revenue to ipfs node later using script3.It also create new data with same content
+ * into pinMigration collection if all completed else update error into pinMigration.
+ * @prerequisite All scripts must be executed in sequence for proper result
+ * @returns errorList contains error occured in product uploads to ipfs
+ * isCompleted returns true in case no error occured else false
+ */
 const script2 = async()=>{
     try {
-        logs('info','script2','Script2 is starting')
+        logs('info','script2','script2 is starting')
         const {db} = getMongoDbParameter()
-        const data = await db.collection('revenues').find({isBlockChainUpdated:true,blockchainName:{$in:['palm','ethereum']}}).toArray()
-        const uniqueDeals = await fetchDealDetails(db)
-        logs('info','script2',`Deals fetched`)
+        const data = await db.collection('revenues').find({isBlockChainUpdated:true,blockchainName:{$in:['palm']},tokenID:{$exists:true}}).toArray()
         let pinRevenues = await db.collection('pinmigrations').find({isProduct:false}).toArray()
-        let pinnedProducts = await db.collection('pinmigrations').find({isProduct:true}).toArray()
         pinRevenues = pinRevenues.map(doc => doc.revenueId.toString())
         const revenues = data.filter(revenue=>!(pinRevenues.includes(revenue._id.toString())))
         logs('info','script2',`No. of request pending ${revenues.length}`)
         const errorList = []
         let isCompleted = true
         for (let revenue of revenues){
-            const product = pinnedProducts.find(product=> product.productId.toString() === revenue.productId.toString())
-            const deal = uniqueDeals.find(deal=> deal._id.toString() === revenue.dealId.toString())
-            if (typeof product === 'undefined'){
-                logs('info','script2',`Skipping request since productId does not exists for revenue ${revenue.productId}`)
-                continue
-            }
             try {
-                const data = await pinningRevenue(revenue,product,deal)
+                const data = await fetchTokenURI(revenue)
                 await db.collection('pinmigrations').insertOne({
                     revenueId:revenue._id,
                     type:'tokenData',
                     isProduct:false,
-                    isPinned:true,
+                    isPinned:false,
+                    dealId: revenue.dealId,
+                    productId:revenue.productId,
                     error:'',
-                    data
+                    ...data
                 })
-                logs('info','script1',`Successfully pinned revenuID: ${revenue._id}`)
+                logs('info','script2',`Successfully Fetched tokenData for revenuID: ${revenue._id}`)
             } catch (error) {
-                logs('info','script1',`Failed to pin revenuID: ${revenue._id}`)
+                logs('info','script2',`Failed to Fetch tokenData for revenuID: ${revenue._id}`)
                 errorList.push({id:revenue._id,error:error.stack})
                 isCompleted = false
             }
         }
-        logs('info','script2','Script2 is completed')
+        logs('info','script2','script2 is completed')
         return {errorList,isCompleted}
     } catch (error) {
         logs('error','script2',`Failed to completed Scrip1 ${error.stack}`)
@@ -49,4 +51,38 @@ const script2 = async()=>{
     }
 }
 
+/**
+ * @author Sachin Bisht
+ * @dev
+ * It fetches tokenURI as well as all data concerning nft
+ * @param {Object} revenue
+ * @returns It returns Object containing all data concerning particular nft
+ */
+const fetchTokenURI  = async (revenue) => {
+    try {
+        const {db} = getMongoDbParameter()
+        const {contract:geerNFT } = await createSmartContractInstance({db,contractAddressInfoId: revenue.contractAddressInfoId.toString()})
+        const tokenURI = await geerNFT.methods.tokenURI(revenue.tokenID).call();
+        const itemDetails = await geerNFT.methods.getItemDetails(revenue.tokenID).call();
+        const [token,product] = itemDetails
+        const tokenData = {
+            productId:token.productId,
+            rank:parseInt(token.rank),
+            couponCode:token.couponCode,
+            isUnlocked:token.isUnlocked
+        }
+        const productData = {
+            id:product.id,
+            name:product.name,
+            description:product.description,
+            author:product.author,
+            metadataURI:product.metadataURI,
+            rewardURI:product.rewardURI
+        }
+        return {tokenURI,token:tokenData,product:productData,tokenId:revenue.tokenID}
+    } catch (error) {
+        logs('error','fetchTokenURI',`Failed to fetch TokenData for ${revenue._id} with tokenID ${revenue.tokenID} with error ${error.stack}`)
+        throw error
+    }
+}
 module.exports=script2

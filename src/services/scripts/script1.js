@@ -7,7 +7,7 @@ const { pinningProduct } = require("../pinning");
  * @dev
  * This Script is executed to uploads all metadata i.e image,thumbnail,imageGallery
  * concerning product to ipfs node.It also update cids for content into pinMigration collection
- * and set isPinned:true if all completed else update error into pinMigration 
+ * and set isPinned:true if all completed else update error into pinMigration
  * @returns {errorList,isCompleted} errorList contains error occured in product uploads to ipfs
  * isCompleted returns true in case no error occured else false
  */

@@ -6,9 +6,9 @@
   "scripts": {
     "script0":"node src/index.js -0",
     "script1":"node src/index.js -1",
-    "script2Part1":"node src/index.js -2.1",
-    "script2Part2":"node src/index.js -2.2",
-    "script3":"node src/index.js -3"
+    "script2":"node src/index.js -2",
+    "script3":"node src/index.js -3",
+    "script4":"node src/index.js -4"
   },
   "dependencies": {
     "dotenv": "^16.0.3",

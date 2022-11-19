@@ -2,9 +2,9 @@ const { getIpfsClients, getIPFSURL } = require("../ipfs/upload")
 const { logs } = require("../logger")
 
 /**
- * Prepares new tokenURI and upload to ipfs node 
- * @param {Object} revenue 
- * @param {Object} product 
+ * Prepares new tokenURI and upload to ipfs node
+ * @param {Object} revenue
+ * @param {Object} product
  * @throws {Error} If new tokenURI does not matches with nft tokenURI
  */
 const pinTokenData  = async (revenue,product) => {
@@ -24,8 +24,8 @@ const pinTokenData  = async (revenue,product) => {
 
 /**
  * It create tokenURI from data fetch about nft
- * @param {Object} revenue 
- * @param {Object} productDetails 
+ * @param {Object} revenue
+ * @param {Object} productDetails
  * @returns {Object} new token uri data for nft purchased
  */
 const prepareTokenData = async(revenue,productDetails)=>{
@@ -44,7 +44,7 @@ const prepareTokenData = async(revenue,productDetails)=>{
   };
 
   /*
-    Don't confuse with image and thumbnail name - 
+    Don't confuse with image and thumbnail name -
     for heavy images - tokenURI attributes store image data and tokenURI.animate_url or image store thumbnail
     while in non-heavy images -tokenURI attributes does not store image data and tokenURI.animate_url or image store thumbnail which will be same as image
     */

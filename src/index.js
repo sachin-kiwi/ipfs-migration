@@ -1,5 +1,5 @@
 const { bootupServices } = require("./utils/common");
-const {script0,script1,script2Part1,script2Part2,script3} = require('./services/scripts')
+const {script0,script1,script2,script3, script4} = require('./services/scripts')
 const { logs } = require("./logger");
 
 const migrationScript = async() => {
@@ -22,11 +22,11 @@ const migrationScript = async() => {
 /**
  * Executes scripts based on  arguments passed
  * @throws {Error} Flag is not present to run script if valid flags not provided
- * @support Flags supported are ['-0','-1','-2.1','-2.2','-3']
+ * @support Flags supported are ['-0','-1','-2','-3','-4']
  */
 const executeScript = async() =>{
     const flag = process.argv[2]
-    const options = ['-0','-1','-2.1','-2.2','-3']
+    const options = ['-0','-1','-2','-3','-4']
     if (!options.includes(flag)){
         throw new Error('Flag is not present to run script')
     }
@@ -36,15 +36,15 @@ const executeScript = async() =>{
     else if (flag==='-1'){
         const resp = await script1()
         console.log(resp)
-    }else if (flag==='-2.1'){
-        const resp = await script2Part1()
+    }else if (flag==='-2'){
+        const resp = await script2()
         console.log(resp)
-    }else if (flag==='-2.2'){
-        const resp = await script2Part2()
+    }else if (flag==='-3'){
+        const resp = await script3()
         console.log(resp)
     }
     else{
-        await script3()
+        await script4()
     }
 }
 
