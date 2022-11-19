@@ -15,7 +15,7 @@ const script2Part1 = async()=>{
     try {
         logs('info','script2Part1','script2Part1 is starting')
         const {db} = getMongoDbParameter()
-        const data = await db.collection('revenues').find({isBlockChainUpdated:true,blockchainName:{$in:['palm','ethereum']}}).toArray()
+        const data = await db.collection('revenues').find({isBlockChainUpdated:true,blockchainName:{$in:['palm']},tokenID:{$exists:true}}).toArray()
         let pinRevenues = await db.collection('pinmigrations').find({isProduct:false}).toArray()
         pinRevenues = pinRevenues.map(doc => doc.revenueId.toString())
         const revenues = data.filter(revenue=>!(pinRevenues.includes(revenue._id.toString())))
