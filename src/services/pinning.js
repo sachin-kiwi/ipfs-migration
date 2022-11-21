@@ -1,4 +1,5 @@
 const { getMediaIpfsUrlViaMediaUrl, getIpfsClients } = require("../ipfs/upload");
+const { logs } = require("../logger");
 
 /**
  * @author Sachin Bisht
@@ -12,11 +13,15 @@ const pinningProduct  = async (product) => {
      const {infura} = getIpfsClients()
      const imageGalleryData = []
      let {image,imageGallery,thumbnail} = product
+     logs('info','pinningProduct', `Starting upload for productId ${product.productId}`)
      const imageCid = await getMediaIpfsUrlViaMediaUrl(image,infura)
+     logs('info','pinningProduct', `Uploaded -image ${image} with ipfs url ${imageCid}  `)
      const thumbnailCid = await getMediaIpfsUrlViaMediaUrl(thumbnail,infura)
+     logs('info','pinningProduct', `Uploaded -thumbnail ${thumbnail} with ipfs url ${thumbnailCid}`)
      for (let index = 0; index < imageGallery.length; index++) {
       const element = imageGallery[index];
       const cid = await getMediaIpfsUrlViaMediaUrl(element,infura)
+      logs('info','pinningProduct', `Uploaded -imageGallery ${element}  with ipfs url ${thumbnailCid}`)
       imageGalleryData.push(cid)
      }
      return {image:imageCid, thumbnail:thumbnailCid,imageGallery:imageGalleryData}

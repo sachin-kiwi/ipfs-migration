@@ -17,6 +17,7 @@ const pinTokenData  = async (revenue,product) => {
       if (revenue.tokenURI !== tokenURI){
         throw new Error('Prepared TokenURI doesnot match with nft tokenURI')
       }
+      logs('info','pinTokenData',`${revenue.revenueId} with tokenURI ${tokenURI}`)
    } catch (error) {
       logs('error','pinTokenData',`${error.stack}`)
       throw error
